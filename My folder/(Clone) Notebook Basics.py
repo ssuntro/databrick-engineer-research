@@ -14,8 +14,13 @@ print("Hallo world!")
 
 # COMMAND ----------
 
-# "./../Setup"
-%run "/Users/soulyu_shine@hotmail.com/Setup"
+# # "./../Setup"
+# %run "./Users/soulyu_shine@hotmail.com/Demo/databrick-engineer-research/My folder/Setup"
+
+
+# COMMAND ----------
+
+# MAGIC %run "./Setup"
 
 # COMMAND ----------
 
