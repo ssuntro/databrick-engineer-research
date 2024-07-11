@@ -8,9 +8,12 @@ SET datasets.path=dbfs:/mnt/demo-datasets/bookstore;
 -- MAGIC
 -- MAGIC
 -- MAGIC ## Bronze Layer Tables
+-- MAGIC
+-- MAGIC ${datasets.path}/books-cdc -> books_bronze(source of cdc feed) -> CDC -> LIVE.books_silver(target table)
 
 -- COMMAND ----------
 
+-- load data from new json file incrementally
 CREATE OR REFRESH STREAMING LIVE TABLE books_bronze
 COMMENT "The raw books data, ingested from CDC feed"
 AS SELECT * FROM cloud_files("${datasets.path}/books-cdc", "json")
@@ -22,6 +25,8 @@ AS SELECT * FROM cloud_files("${datasets.path}/books-cdc", "json")
 -- MAGIC
 -- MAGIC
 -- MAGIC ## Silver Layer Tables
+-- MAGIC
+-- MAGIC
 
 -- COMMAND ----------
 
@@ -40,6 +45,16 @@ APPLY CHANGES INTO LIVE.books_silver
 -- MAGIC
 -- MAGIC
 -- MAGIC ## Gold Layer Tables
+-- MAGIC
+-- MAGIC we define a simple aggregate query to create a live table from the data in our book_silver table.
+-- MAGIC
+-- MAGIC Notice here that this is not a streaming table.
+-- MAGIC
+-- MAGIC Since data is being updated and deleted from our book_silver table, it is no more valid to be a streaming
+-- MAGIC
+-- MAGIC source for this new table.
+-- MAGIC
+-- MAGIC Remember streaming sources must be append only tables.
 
 -- COMMAND ----------
 
@@ -53,6 +68,14 @@ AS SELECT author, count(*) as books_count, current_timestamp() updated_time
 
 -- MAGIC %md
 -- MAGIC ## DLT Views
+-- MAGIC
+-- MAGIC DLT views are temporary views
+-- MAGIC
+-- MAGIC scoped to the DLT pipeline they are a part of, so they are not persisted to the metastore.
+-- MAGIC
+-- MAGIC Views can still be used to enforce data equality. And metrics for views will be collected and reported
+-- MAGIC
+-- MAGIC as they would be for tables.
 
 -- COMMAND ----------
 

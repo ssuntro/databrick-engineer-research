@@ -26,3 +26,13 @@ display(files)
 
 # MAGIC %sql
 # MAGIC SELECT * FROM demo_bookstore_dlt_db.fr_daily_customer_books
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Query non exisitng table should get the error
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC select * from demo_bookstore_dlt_db.usa_daily_customer_books
